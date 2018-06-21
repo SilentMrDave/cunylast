@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Course Catalog Home</title>
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../css/style.css">
+	<script type="text/javascript">
+		function download(data, filename, type) 
+		{
+			var file = new Blob([data], {type: type});
+			if (window.navigator.msSaveOrOpenBlob) // IE10+
+			window.navigator.msSaveOrOpenBlob(file, filename);
+			else 
+			{ // Others
+				var a = document.createElement("a"),
+				url = URL.createObjectURL(file);
+				a.href = url;
+				a.download = filename;
+				document.body.appendChild(a);
+				a.click();
+				setTimeout(function() 
+				{
+					document.body.removeChild(a);
+					window.URL.revokeObjectURL(url);  
+				}, 0); 
+			}
+		}
+		function coursesToString()
+		{
+			var courses = <%- JSON.stringify(courses) %>;
+			var string = "";
+
+			for (var i = 0; i < courses.length; i++) 
+			{
+				string += courses[i].code + "\n";
+				string += courses[i].name + "\n";
+				string += courses[i].time + "\n";
+				string += "------------------------------------------------------------\n";
+			}
+			return string;
+		}
+	</script>
+</head>
+<body>
+	<%- include('partials/header', {user})%>
+	<div class="container card">
+		<h1><%= `${user.firstName} ${user.lastName}` %></h1>
+		<% if(courses.length > 0) {%>
+			<% for (var i = 0; i < courses.length; i++) {%>
+				<div class="course card">
+					<h3 class="card-header"><%= courses[i].code %> <small><%= courses[i].name %></small></h3>
+					<p class="card-body"><%= courses[i].description %></p>
+					<p class="card-body"><%= courses[i].time %></p>
+				</div>
+			<%} %>
+		<%} else {%>
+			<div class="course card">
+				<h3 class="card-header">Not enrolled in any classes</h3>
+			</div>
+		<%}%>
+		<button class="btn btn-success" onclick="download(coursesToString(), 'Schedule.txt', 'txt')">Save Schedule</button>
+	</div>
+</body>
+</html>

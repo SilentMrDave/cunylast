@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Course Catalog Home</title>
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../css/style.css">
+</head>
+<body>
+	<%- include('partials/header')%>
+	<div class="container card">
+		<h1><%= `${user.firstName} ${user.lastName}` %></h1>
+		<% if(user.courses) {%>
+			<% for (var i = 0; i < user.courses.length; i++) {%>
+				<div class="course card">
+					<h3 class="card-header"><%= user.courses[i].code %> <small><%= user.courses[i].name %></small></h3>
+					<p class="card-body"><%= user.courses[i].description %></p>
+				</div>
+			<%} %>
+		<%} else {%>
+			<div class="course card">
+				<h3 class="card-header">Not enrolled in any classes</h3>
+			</div>
+		<%}%>
+	</div>
+</body>
+</html>

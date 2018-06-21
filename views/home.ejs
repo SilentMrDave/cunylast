@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Course Catalog Home</title>
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../css/style.css">
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript">
+		$( document ).ready(function() 
+		{
+			$(".enroll").click(function()
+			{
+				var classId = $(this).attr('data-id');
+				$.post("/enroll", {userId: 1, courseId: classId}, function()
+				{
+					alert("Successfully enrolled in class " + classCode);
+				});
+			});
+		});		
+	</script>
+</head>
+<body>
+	<%- include('partials/header')%>
+	<div class="container card">
+		<h1>Courses</h1>
+		<% for (var i = 0; i < courses.length; i++) {%>
+			<div class="course card">
+				<h3 class="card-header"><%= courses[i].code %> <small><%= courses[i].name %></small></h3>
+				<p class="card-body"><%= courses[i].description %></p>
+				<p class="card-body"><%= courses[i].time %></p>
+				<div class="card-footer">
+					<button class="enroll btn btn-primary" data-id="<%= courses[i].id %>">Enroll</button>
+					<button class="btn">More Info</button>
+					<button class="btn">Add To Cart</button>
+				</div>
+			</div>
+		<%} %>
+	</div>
+</body>
+</html>

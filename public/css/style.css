@@ -1,0 +1,35 @@
+@font-face {
+    font-family: "Comic Nueue";
+    src:url("fonts/ComicNeue-Regular.ttf");
+}
+
+body
+{
+	font-family: Comic Nueue;
+}
+
+nav
+{
+	color: gray;
+}
+
+nav a
+{
+	color: white;
+}
+
+nav a:hover
+{
+	color: gray;
+}
+
+nav .right
+{
+	float: right;
+}
+
+.course
+{
+	margin: 20px;
+}
+
