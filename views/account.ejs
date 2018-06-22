@@ -1,10 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title><%=`${user.firstName}`%>'s Account</title>
+	<title>CunyLast | <%=`${user.firstName}`%>'s Account</title>
 	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="../css/style.css">
+	<script type="text/javascript" src="../js/jquery.js"></script>
 	<script type="text/javascript">
+		$( document ).ready(function()
+		{
+			$(".unenroll").click(function()
+			{
+				var classId = $(this).attr('data-id');
+				var classCode = $(this).attr('data-code');
+				$.ajax(
+				{
+				    url: '/unenroll',
+				    type: 'DELETE',
+					data: {userId: '<%= user.id %>', courseId: classId},
+				    success: function(result) {
+				       alert(result);
+					   location.reload(true);
+				    }
+				});
+			});
+		});
+
 		function download(data, filename, type)
 		{
 			var file = new Blob([data], {type: type});
@@ -49,8 +69,17 @@
 			<% for (var i = 0; i < courses.length; i++) {%>
 				<div class="course card">
 					<h3 class="card-header"><%= courses[i].code %> <small><%= courses[i].name %></small></h3>
-					<p class="card-body"><%= courses[i].description %></p>
-					<p class="card-body"><%= courses[i].time %></p>
+					<p class="card-body">
+						<strong>Course Description</strong><br>
+						<%= courses[i].description %>
+					</p>
+					<p class="card-body">
+						<strong>Course Times</strong><br>
+						<%= courses[i].time %>
+					</p>
+					<div class="card-footer">
+						<button class="unenroll btn btn-danger" data-id="<%= courses[i].id %>" data-code="<%=courses[i].code%>">Unenroll</button>
+					</div>
 				</div>
 			<%} %>
 		<%} else {%>

@@ -4,12 +4,17 @@ var Sequelize = require('sequelize');
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 
-var sequelize = new Sequelize('personal','dave','password',
+var sequelize = new Sequelize('d80704c8fsvn4r','nerosrhmijgjtw','c516d8f67828745cb8e08682dfab11e563fb9a89ca4657f3926fb539a404f571',
 {
-	host: 'localhost',
+	host: 'ec2-54-235-75-214.compute-1.amazonaws.com',
 	dialect: 'postgres',
 	operatorsAliases: false,
-	logging: false
+	logging: false,
+    "ssl": true,
+    "dialectOptions":
+		{
+	        "ssl": true
+	    }
 });
 
 var app = express();
@@ -103,11 +108,10 @@ app.use(require('express-session')({ secret: 'keyboard cat', resave: false, save
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', function(req, res)
+app.get('/', require('connect-ensure-login').ensureLoggedIn(), function(req, res)
 {
 	var userId = 0;
 	if (req.session.passport) userId = req.session.passport.user;
-	console.log(userId);
 	Users.find(
 	{
 		where:
@@ -130,18 +134,18 @@ app.get('/account', require('connect-ensure-login').ensureLoggedIn(), function(r
 	var user = null;
 
 	Users.find(
+	{
+		where:
 		{
-			where:
-			{
-				id: id
-			}
-		}).then(function(user)
+			id: id
+		}
+	}).then(function(user)
+	{
+		user.getCourses().then(function(courses)
 		{
-			user.getCourses().then(function(courses)
-			{
-				res.render('account', {user, courses});
-			});
+			res.render('account', {user, courses});
 		});
+	});
 });
 
 app.post('/submitcourse', function(req, res)
@@ -149,13 +153,12 @@ app.post('/submitcourse', function(req, res)
 	var info = req.body;
 
 	Courses.create(
-		{
-			code: info.code,
-			name: info.name,
-			description: info.description,
-			time: info.time
-		}
-	).then(course =>
+	{
+		code: info.code,
+		name: info.name,
+		description: info.description,
+		time: info.time
+	}).then(course =>
 	{
 		console.log(`Course ${course.code} created`);
 		res.send(course);
@@ -167,13 +170,13 @@ app.post('/submituser', function(req, res)
 	var info = req.body;
 
 	Users.create(
-		{
-			username: info.firstName + info.lastName,
-			firstName: info.firstName,
-			lastName: info.lastName,
-			email: info.email,
-			password: info.password
-		}
+	{
+		username: info.firstName + info.lastName,
+		firstName: info.firstName,
+		lastName: info.lastName,
+		email: info.email,
+		password: info.password
+	}
 	).then(user =>
 	{
 		console.log(`User ${user.username} created`);
@@ -185,14 +188,75 @@ app.post('/enroll', function(req, res)
 {
 	var info = req.body;
 
-	CoursesTaken.create(
+	Users.find(
 	{
-		userId: info.userId,
-		courseId: info.courseId
+		where:
+		{
+			id: info.userId
+		}
 	}).then(function(user)
 	{
-		console.log(`Added course ${info.courseId} to user ${info.userId}`);
-		res.send(user);
+		user.getCourses().then(function(courses)
+		{
+			var alreadyEnrolled = false;
+			for (var i = 0; i < courses.length && !alreadyEnrolled; i++)
+			{
+				if (courses[i].id == info.courseId) alreadyEnrolled = true;
+			}
+			if (alreadyEnrolled) res.send(`Already enrolled in this course.`);
+			else
+			{
+				CoursesTaken.create(
+				{
+					userId: info.userId,
+					courseId: info.courseId
+				}).then(function(user)
+				{
+					res.send(`Successfully enrolled.`);
+				});
+			}
+		});
+	});
+});
+
+app.delete('/unenroll', function(req, res)
+{
+	console.log(req.body);
+	Users.find(
+		{
+			where:
+			{
+				id: req.body.userId
+			}
+		}
+	).then(function(user)
+	{
+		user.getCourses(
+			{
+				where:
+				{
+					id: req.body.courseId
+				}
+			}
+		).then(function(courses)
+		{
+			if (courses[0] == undefined) res.send("Not enrolled in this course.")
+			else
+			{
+				CoursesTaken.destroy(
+					{
+						where:
+						{
+							userId: req.body.userId,
+							courseId: req.body.courseId
+						}
+					}
+				).then(function()
+				{
+					res.send("Unenrolled from course.");
+				});
+			}
+		});
 	});
 });
 
@@ -218,7 +282,7 @@ app.get('*', function(req, res)
 	res.send("Page not found.")
 });
 
-app.listen(1337, function()
+app.listen(process.env.PORT || 1337, function()
 {
 	console.log("Listening");
 });
