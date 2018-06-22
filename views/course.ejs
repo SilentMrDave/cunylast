@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CunyLast | <%=course.code%></title>
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../css/style.css">
+	<script type="text/javascript" src="../js/jquery.js"></script>
+    <script type="text/javascript">
+		$( document ).ready(function()
+		{
+			$(".enroll").click(function()
+			{
+				var classId = $(this).attr('data-id');
+				var classCode = $(this).attr('data-code');
+				$.post("/enroll", {userId: '<%= user.id %>', courseId: classId}, function(res)
+				{
+					alert(res);
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+	<%- include('partials/header')%>
+	<div class="container card">
+		<h1><strong><%=course.code%></strong> <small><%= course.name %></small></h1>
+		<div class="course card">
+			<p class="card-body">
+				<strong>Course Description</strong><br>
+				<%= course.description %>
+			</p>
+            <p class="card-body">
+				<strong>More Information</strong><br>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vehicula mattis malesuada. Duis hendrerit ultricies tortor, in convallis mauris hendrerit aliquet. Quisque erat sem, hendrerit nec pellentesque eget, ultricies vel elit. Proin eget auctor libero. Integer non sollicitudin nibh. Maecenas efficitur mollis risus id feugiat. Curabitur sed arcu convallis nisi dictum ultrices. Nullam ullamcorper pulvinar erat eu rutrum. Nam nisi magna, feugiat sit amet quam quis, commodo venenatis lorem. Suspendisse a imperdiet ex, eget semper arcu. Aliquam volutpat vel leo vel imperdiet. Nullam turpis justo, feugiat sit amet cursus ac, tincidunt vel orci. Quisque eleifend interdum dolor, ac tincidunt tellus molestie eu.
+
+                Vivamus elementum pulvinar ligula, id aliquam risus rutrum nec. Sed nec consectetur lorem, maximus viverra turpis. Curabitur rhoncus vulputate pretium. Nulla est risus, maximus non condimentum ut, sagittis sed eros. Fusce quis purus ac est luctus auctor. Phasellus ut ex rutrum, consequat mauris et, tincidunt ligula. Pellentesque finibus eros at luctus consectetur. Vivamus interdum consequat egestas. Nullam venenatis quis dui vitae commodo. Sed porttitor egestas faucibus. Cras sit amet vulputate ipsum, et aliquam metus. Praesent eget lectus vitae augue mollis consectetur ut tempor nisl. Ut vitae leo ac enim viverra ornare id ac ipsum. Maecenas dapibus quam est, sed finibus enim placerat vitae. Integer quis congue metus.
+			</p>
+			<p class="card-body">
+				<strong>Course Times</strong><br>
+				<%= course.time %>
+			</p>
+			<div class="card-footer">
+				<button class="enroll btn btn-primary" data-id="<%= course.id %>" data-code="<%=course.code%>">Enroll</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

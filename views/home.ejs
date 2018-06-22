@@ -37,7 +37,7 @@
 				</p>
 				<div class="card-footer">
 					<button class="enroll btn btn-primary" data-id="<%= courses[i].id %>" data-code="<%=courses[i].code%>">Enroll</button>
-					<button class="btn">More Info</button>
+					<a href="/course/<%=courses[i].id%>"><button class="btn">More Info</button></a>
 				</div>
 			</div>
 		<%} %>

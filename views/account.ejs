@@ -45,6 +45,38 @@
 				}, 0);
 			}
 		}
+
+		function pastebin()
+		{
+			var settings = {
+			  "async": true,
+			  "crossDomain": true,
+			  "url": "https://pastebin.com/api/api_post.php",
+			  "method": "POST",
+			  "headers": {
+			    "content-type": "application/x-www-form-urlencoded",
+			    "cache-control": "no-cache",
+			    "postman-token": "98ee34d7-492a-cf7f-6417-c87647bbb37c"
+			  },
+			  "data": {
+					  		"api_dev_key":"905ce7e15e2f8f3ac1cb79c05e00d00f",
+				   			"api_option":"paste",
+							"api_paste_code":coursesToString,
+							"api_paste_name":"My CunyLast Schedule",
+							"api_paste_private":"2"
+						}
+			}
+
+			$.ajax(settings).done(function (response)
+			{
+				var win = window.open(response, '_blank');
+				  if (win)
+				  {
+				      win.focus();
+				  }
+			});
+		}
+
 		function coursesToString()
 		{
 			var courses = <%- JSON.stringify(courses) %>;
@@ -87,7 +119,10 @@
 				<h3 class="card-header">Not enrolled in any classes</h3>
 			</div>
 		<%}%>
-		<button class="btn btn-success" onclick="download(coursesToString(), 'Schedule.txt', 'txt')">Save Schedule</button>
+		<div class="card btn-group-justified" role="group" style="width: 25%; margin: 0 auto">
+			<button style="margin: 10px" class="btn btn-success" onclick="download(coursesToString(), 'Schedule.txt', 'txt')">Save Schedule</button>
+			<button style="margin: 10px" class="btn btn-primary" onclick="pastebin()">Upload to Pastebin</button>
+		</div>
 	</div>
 </body>
 </html>

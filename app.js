@@ -3,6 +3,7 @@ var parser = require('body-parser');
 var Sequelize = require('sequelize');
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
+var calenderToken = "";
 
 var sequelize = new Sequelize('d80704c8fsvn4r','nerosrhmijgjtw','c516d8f67828745cb8e08682dfab11e563fb9a89ca4657f3926fb539a404f571',
 {
@@ -123,6 +124,33 @@ app.get('/', require('connect-ensure-login').ensureLoggedIn(), function(req, res
 		Courses.findAll().then(function(rows)
 		{
 			res.render('home', {user, courses: rows});
+		});
+	});
+});
+
+app.get('/course/:courseId', require('connect-ensure-login').ensureLoggedIn(), function(req, res)
+{
+	var userId = 0;
+	if (req.session.passport) userId = req.session.passport.user;
+	var id = req.params.courseId;
+	Users.find(
+	{
+		where:
+		{
+			id: userId
+		}
+	}).then(function(user)
+	{
+		Courses.find(
+			{
+				where:
+				{
+					id: id
+				}
+			}
+		).then(function(course)
+		{
+			res.render('course', {user, course});
 		});
 	});
 });
