@@ -4,7 +4,7 @@ var Sequelize = require('sequelize');
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 
-var sequelize = new Sequelize('personal','postgres','n3tw0rk',
+var sequelize = new Sequelize('personal','dave','password',
 {
 	host: 'localhost',
 	dialect: 'postgres',
@@ -54,7 +54,7 @@ var CoursesTaken = sequelize.define('coursesTaken',
 		type: Sequelize.INTEGER,
 		references: {model: 'users', key: 'id'}
 	},
-	courseId: 
+	courseId:
 	{
 		type: Sequelize.INTEGER,
 		references: {model: 'courses', key: 'id'}
@@ -67,12 +67,12 @@ CoursesTaken.sync();
 Users.belongsToMany(Courses, {through: 'coursesTaken'});
 Courses.belongsToMany(Users, {through: 'coursesTaken'});
 
-passport.use(new Strategy(function(username, password, cb) 
+passport.use(new Strategy(function(username, password, cb)
 {
 	Users.find(
 	{
 		where: {username: username}
-	}).then(function(user, err) 
+	}).then(function(user, err)
     {
 		if (err) { return cb(err); }
 		if (!user) { return cb(null, false); }
@@ -81,17 +81,17 @@ passport.use(new Strategy(function(username, password, cb)
     });
 }));
 
-passport.serializeUser(function(user, cb) 
+passport.serializeUser(function(user, cb)
 {
 	cb(null, user.id);
 });
 
-passport.deserializeUser(function(id, cb) 
+passport.deserializeUser(function(id, cb)
 {
   Users.find(
   	{
   		where: {id: id}
-  	}).then(function (user, err) 
+  	}).then(function (user, err)
 	{
 		if (err) { return cb(err); }
 		cb(null, user);
@@ -105,11 +105,14 @@ app.use(passport.session());
 
 app.get('/', function(req, res)
 {
+	var userId = 0;
+	if (req.session.passport) userId = req.session.passport.user;
+	console.log(userId);
 	Users.find(
 	{
 		where:
 		{
-			id: 1
+			id: userId
 		}
 	}).then(function(user)
 	{
@@ -117,12 +120,12 @@ app.get('/', function(req, res)
 		{
 			res.render('home', {user, courses: rows});
 		});
-	});	
+	});
 });
 
 app.get('/account', require('connect-ensure-login').ensureLoggedIn(), function(req, res)
 {
-	var id = parseInt(req.query.id) || 1;
+	var id = req.session.passport.user || 0;
 	var courses = [];
 	var user = null;
 
@@ -133,37 +136,11 @@ app.get('/account', require('connect-ensure-login').ensureLoggedIn(), function(r
 				id: id
 			}
 		}).then(function(user)
-		{			
-			/*
-			if(users[0].courses)
-			{
-				var promises = [];
-
-				for (var i = 0; i < users[0].courses.length; i++)
-				{
-					promises.push(Courses.find({where: {code: users[0].courses[i]}}).then(function(course)
-					{
-						if(course) 
-						{
-							console.log(course.name);
-							courses.push(course);
-						}						
-					}));
-				}
-				return Promise.all(promises).then(function()
-				{
-					res.render('account', {user: user, courses: courses});
-				});
-			}
-			else
-			{
-				res.render('account', {user: user, courses: courses});
-			}
-			*/
+		{
 			user.getCourses().then(function(courses)
 			{
 				res.render('account', {user, courses});
-			});	
+			});
 		});
 });
 
@@ -223,12 +200,12 @@ app.get('/login',function(req, res)
 {
 	res.render('login', {user: null});
 });
-  
-app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res) 
+
+app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res)
 {
 	res.redirect('/');
 });
-  
+
 app.get('/logout', function(req, res)
 {
 	req.logout();
@@ -245,3 +222,10 @@ app.listen(1337, function()
 {
 	console.log("Listening");
 });
+
+function loggedInUser(session)
+{
+  if (session.passport == undefined) return undefined;
+  if (session.passport.user == undefined) return undefined;
+  return session.passport;
+}

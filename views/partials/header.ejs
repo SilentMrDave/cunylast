@@ -2,11 +2,13 @@
 	<div class="container">
 		<a class="nav-link" href="/">Home</a> |
 		<a class="nav-link" href="/account">Account</a> |
-		<a class="nav-link" href="/logout"> Logout</a>
+		<% if(user != undefined) {%>
+			<span style="float: right"><%= user.username%></span> <a href="/logout">(Logout)</a>
+		<%} else {%>
+			<a href="/login">Log In</a>
+		<%}%>
 	</div>
 	<div class="right">
-		<% if(user != null) {%>
-			Logged in as <%= user.username%>
-		<%}%>
+
 	</div>
 </nav>

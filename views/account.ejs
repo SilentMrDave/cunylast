@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Course Catalog Home</title>
+	<title><%=`${user.firstName}`%>'s Account</title>
 	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="../css/style.css">
 	<script type="text/javascript">
-		function download(data, filename, type) 
+		function download(data, filename, type)
 		{
 			var file = new Blob([data], {type: type});
 			if (window.navigator.msSaveOrOpenBlob) // IE10+
 			window.navigator.msSaveOrOpenBlob(file, filename);
-			else 
+			else
 			{ // Others
 				var a = document.createElement("a"),
 				url = URL.createObjectURL(file);
@@ -18,11 +18,11 @@
 				a.download = filename;
 				document.body.appendChild(a);
 				a.click();
-				setTimeout(function() 
+				setTimeout(function()
 				{
 					document.body.removeChild(a);
-					window.URL.revokeObjectURL(url);  
-				}, 0); 
+					window.URL.revokeObjectURL(url);
+				}, 0);
 			}
 		}
 		function coursesToString()
@@ -30,7 +30,7 @@
 			var courses = <%- JSON.stringify(courses) %>;
 			var string = "";
 
-			for (var i = 0; i < courses.length; i++) 
+			for (var i = 0; i < courses.length; i++)
 			{
 				string += courses[i].code + "\n";
 				string += courses[i].name + "\n";
