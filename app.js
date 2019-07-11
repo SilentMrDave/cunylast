@@ -3,20 +3,10 @@ var parser = require('body-parser');
 var Sequelize = require('sequelize');
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
+var models = require('./models');
 var calenderToken = "";
 
-var sequelize = new Sequelize('d80704c8fsvn4r','nerosrhmijgjtw','c516d8f67828745cb8e08682dfab11e563fb9a89ca4657f3926fb539a404f571',
-{
-	host: 'ec2-54-235-75-214.compute-1.amazonaws.com',
-	dialect: 'postgres',
-	operatorsAliases: false,
-	logging: false,
-    "ssl": true,
-    "dialectOptions":
-		{
-	        "ssl": true
-	    }
-});
+
 
 var app = express();
 app.set('view engine', 'ejs');
@@ -26,55 +16,20 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.json());
 app.use(parser.urlencoded({extended: true}));
 
-sequelize.authenticate()
-.then(() =>
-{
- 	console.log('Connection has been established successfully.');
-})
-.catch(err =>
-{
-	console.error('Unable to connect to the database:', err);
-});
+var Users = models.users;
+var Courses = models.courses;
+var CoursesTaken = models.coursesTaken;
 
-var Users = sequelize.define('users',
-{
-	username: Sequelize.STRING,
-	firstName: Sequelize.STRING,
-	lastName: Sequelize.STRING,
-	email: Sequelize.STRING,
-	password: Sequelize.STRING
-});
-
-var Courses = sequelize.define('courses',
-{
-	code: Sequelize.STRING,
-	name: Sequelize.STRING,
-	description: Sequelize.STRING,
-	time: Sequelize.STRING
-});
-
-var CoursesTaken = sequelize.define('coursesTaken',
-{
-	userId:
-	{
-		type: Sequelize.INTEGER,
-		references: {model: 'users', key: 'id'}
-	},
-	courseId:
-	{
-		type: Sequelize.INTEGER,
-		references: {model: 'courses', key: 'id'}
-	}
-});
-
-Courses.sync();
 Users.sync();
+Courses.sync();
 CoursesTaken.sync();
 Users.belongsToMany(Courses, {through: 'coursesTaken'});
 Courses.belongsToMany(Users, {through: 'coursesTaken'});
 
 passport.use(new Strategy(function(username, password, cb)
 {
+	console.log("Users: ");
+	console.log(models.users);
 	Users.find(
 	{
 		where: {username: username}
